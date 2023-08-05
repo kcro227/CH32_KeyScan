@@ -10,66 +10,57 @@
 #include "debug.h"
 
 
+
+//定义长按时间以及双击间隔时间
+#define _KEY_LONG_TIME 100
+#define _KEY_INTERVAL_TIME 60
+
 //定义用户按键为PA0
-#define KEY_USER_READ() GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_0)
-#define KEY_DOWN 0
-#define KEY_UP 1
-
-/*
- * 定义按键状态枚举类型
- *
- *
- *
- * */
-typedef enum
+typedef enum _KEY_LIST //按键列表
 {
-    FSM_KEY_Up,//按键释放
-    FSM_KEY_DownShake,//按键按压抖动
-    FSM_KEY_Down,//按键按压状态
-    FSM_KEY_UpShake,//按键释放抖动
-}FSM_State_t;
+    KEY1,
+    KEY2,
+//    KEY3,
+    KEY_NUM,
+}KEY_LIST;
 
-/**
- * 定义按键值结构体，包含按键状态，按键扫描计数值，按键辅助标志
- */
-typedef struct{
-    FSM_State_t state;//按键状态
-    uint8_t volatile cnt;//按键计数值
-    uint8_t auxiliary_flag;//按键辅助标志，判断按键是否按下过
-}FSM_value_t;
 
-typedef enum
+typedef enum _KEY_STATUS_LIST // 按键状态
 {
-    KEY_RELESS = 0,//按键释放
-    KEY_CHICK,//按键单击
-    KEY_DOUBLE,//按键双击
-    KEY_PRESS,//按键长按
+    _KEY_STATUS_RELEASE = 0x00,//按键释放状态
+    _KEY_STATUS_DOWNSHAKE = 0x01,//按键按下抖动状态
+    _KEY_STATUS_DOWN = 0x02,        //按键按下状态
+    _KEY_STATUS_RELEASESHAKE = 0x04,//按键释放抖动状态
+}KEY_STATUS_LIST;
 
-}KEY_action_t;
-
-/**
- * 按键id，为用户定义的按键id，其中KEY_NULL必须存在且为枚举值为0
- */
-typedef enum
+typedef enum _KEY_EVEN_LIST //按键事件
 {
-    KEY_NULL = 0,
-//    KEY_DOWN,
-//    KEY_ENTER,
-//    KEY_UP,
-    KEY_USER,
-}KEY_id_t;
-/**
- * 按键id结构体
- */
-typedef struct
-{
-    KEY_id_t id;//保存按键id
-    KEY_action_t action;
-}KEY_t;
+    _KEY_EVEN_NULL = 0x00,//按键无动作
+    _KEY_EVEN_CLICK = 0x01,//按键单击
+    _KEY_EVEN_DOUBLECLICK = 0x02,//按键双击
+    _KEY_EVEN_LONGPRESS = 0x04,//按键长按
+}KEY_EVEN_LIST;
 
-extern FSM_value_t FSM_value;
-extern KEY_t KEY_whitch;
-void key_scan();
-void Key_Init();
-void Key_Action();
+
+
+typedef struct _KEY_OBJECT
+{
+    uint8_t Press_Interval;   //间隔计数标志
+    uint8_t Press_Long;       //长按计数标志
+    uint8_t Press_Again;      //按下过标志
+    uint8_t Press_Assic;        //辅助标志
+    uint8_t Key_Down_Level;
+    uint8_t run_flag;//状态机可运行标志 为1表示长按事件等待弹起
+    uint8_t (*Read_Key)(void);
+
+    KEY_STATUS_LIST statue;
+    KEY_EVEN_LIST even;
+
+}KEY_OBJECT;
+extern KEY_OBJECT Key_Obj[KEY_NUM];
+
+
+void KEY_Init(void);
+void KEY_StatuMachine();
+
 #endif /* GENER_FILE_DRIVER_KEY_KEY_SCAN_H_ */

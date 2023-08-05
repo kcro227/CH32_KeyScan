@@ -1,3 +1,4 @@
 /.setting/*
 /obj/*
 obj/key_scan_stat.hex
+.settings/language.settings.xml

@@ -29,11 +29,13 @@ void System_Init()
     Led_Init(&led1);
     Led_Init(&led2);
 
-    Key_Init();
+    KEY_Init();
+
 }
 
 void System_Loop()
 {
-    key_scan();
-    Key_Action();
+    KEY_StatuMachine();
+
+
 }
